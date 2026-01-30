@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
+// 👇 PASTE YOUR RENDER LINK HERE (Make sure there is NO slash at the end)
+const API_URL = "https://desimakingvedesi-backend.onrender.com"; 
+
 function App() {
   const [menu, setMenu] = useState([]);
-  const [cart, setCart] = useState([]); // <-- NEW: Stores selected food
-  const [viewCart, setViewCart] = useState(false); // <-- NEW: Toggles between Menu and Cart page
+  const [cart, setCart] = useState([]);
+  const [viewCart, setViewCart] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // 1. Fetch Menu
   useEffect(() => {
-    axios.get('http://localhost:5000/api/menu')
+    // Uses the new API_URL string
+    axios.get(`${API_URL}/api/menu`)
       .then(res => {
         setMenu(res.data);
         setLoading(false);
@@ -19,8 +23,7 @@ function App() {
 
   // 2. Add Item to Cart
   const addToCart = (item) => {
-    // Check if item already exists to increase quantity (Simple version: just add duplicates for now)
-    const newItem = { ...item, cartId: Date.now() }; // Unique ID for React list
+    const newItem = { ...item, cartId: Date.now() };
     setCart([...cart, newItem]);
   };
 
@@ -32,24 +35,24 @@ function App() {
   // 4. Send Order to Backend
   const placeOrder = async () => {
     try {
-        // Format data exactly how backend expects it
         const orderData = {
-            customerName: "Vajraksh", // Hardcoded for now
+            customerName: "Vajraksh", 
             phoneNumber: "9999999999",
             paymentMethod: "UPI",
             totalAmount: cart.reduce((sum, item) => sum + item.price, 0),
             items: cart.map(item => ({
-                menuItem: item._id, // This is the LINK to the food model
+                menuItem: item._id,
                 quantity: 1,
                 name: item.name,
                 price: item.price
             }))
         };
 
-        const res = await axios.post('http://localhost:5000/api/orders', orderData);
+        // Uses the new API_URL string
+        const res = await axios.post(`${API_URL}/api/orders`, orderData);
         alert(`Order Placed! Order ID: ${res.data._id}`);
-        setCart([]); // Clear cart
-        setViewCart(false); // Go back to menu
+        setCart([]); 
+        setViewCart(false); 
     } catch (error) {
         console.error("Order failed:", error);
         alert("Failed to place order. Check console.");
