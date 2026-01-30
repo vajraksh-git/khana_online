@@ -16,7 +16,7 @@ const getMenu = async (req, res) => {
 // @desc    Add a new item
 // @route   POST /api/menu
 // @access  Public (for now)
-const addMenuItem = async (req, res) => {
+const addMenuItem = async (req, res) => {3
     try {
         const { name, price, category, description, image } = req.body;
         
