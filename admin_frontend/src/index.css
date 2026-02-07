@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+/* If you want to force Dark Mode to work with a class (your toggle button), add this: */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Global Styles */
+body {
+  font-family: 'Poppins', sans-serif;
+  @apply bg-gray-100 text-gray-900 transition-colors duration-300;
+}
+
+/* Dark Mode Background */
+.dark body {
+  @apply bg-gray-900 text-white;
+}

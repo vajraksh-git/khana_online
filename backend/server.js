@@ -4,10 +4,13 @@ const cors = require('cors');
 const http = require('http'); 
 const { Server } = require('socket.io');
 const connectDB = require('./config/db');
+const path = require('path');
 
 // Import Routes
 const menuRoutes = require('./routes/menuRoutes');
 const orderRoutes = require('./routes/orderRoutes'); // <--- CRITICAL IMPORT
+const userRoutes = require('./routes/userRoutes'); // <--- Import it
+const adminRoutes = require('./routes/adminRoutes'); // <--- Import
 
 // Config
 dotenv.config();
@@ -32,6 +35,8 @@ app.use(express.json());
 // --- ROUTES START HERE ---
 app.use('/api/menu', menuRoutes);
 app.use('/api/orders', orderRoutes); // <--- THIS MUST BE HERE
+app.use('/api/users', userRoutes);                 // <--- Use it
+app.use('/api/admin', adminRoutes); // <--- NEW ADMIN ROUTES
 // --- ROUTES END HERE ---
 
 app.get('/', (req, res) => {
