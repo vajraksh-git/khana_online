@@ -4,8 +4,8 @@ import { ChevronLeft, User, MapPin, Phone, Mail, Save, LogOut } from 'lucide-rea
 import { getAuth, signOut } from "firebase/auth";
 import axios from 'axios';
 
-const API_URL = "http://localhost:5000";
-
+//const API_URL = "http://localhost:5000";
+const API_URL = "https://desimakingvedesi-backend.onrender.com"; // Keep this for later when deploying
 export default function Profile({ user }) {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);

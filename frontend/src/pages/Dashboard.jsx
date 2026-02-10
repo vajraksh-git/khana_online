@@ -3,8 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import ItemCard from '../components/ItemCard';
 
-const API_URL = "http://localhost:5000"; 
-//const API_URL = "https://desividesi-backend.onrender.com"; // Keep this for later when deploying
+//const API_URL = "http://localhost:5000"; 
+const API_URL = "https://desimakingvedesi-backend.onrender.com"; // Keep this for later when deploying
 
 function Dashboard({ user }) {
   const [menu, setMenu] = useState([]);

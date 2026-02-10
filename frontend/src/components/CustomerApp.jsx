@@ -10,7 +10,7 @@ import {
 import { GoogleAuthProvider, signInWithPopup, getAuth } from "firebase/auth";
 
 //const API_URL = "http://localhost:5000";
-const API_URL = "https://desividesi-backend.onrender.com"; // Keep this for later when deploying
+const API_URL = "https://desimakingvedesi-backend.onrender.com"; // Keep this for later when deploying
 // --- 1. DATA CONSTANTS ---
 const PLATTERS = [
     { id: '3-course', name: '3-Course Platter', title: 'Subtle Indulgence', desc: 'Refined, light, and fulfilling.', slots: 3, price: 350, image: "/platters/3-course.png" },

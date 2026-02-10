@@ -4,8 +4,8 @@ import axios from 'axios';
 import myLogo from '../assets/logo.png'; // <--- IMPORT YOUR LOGO HERE
 
 // 👇 PASTE YOUR LOCALHOST OR RENDER LINK HERE
-const API_URL = "http://localhost:5000"; 
-
+//const API_URL = "http://localhost:5000"; 
+const API_URL = "https://desimakingvedesi-backend.onrender.com"; // Keep this for later when deploying
 function Login() {
   const navigate = useNavigate();
 
