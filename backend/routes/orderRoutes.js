@@ -4,22 +4,22 @@ const Order = require('../models/Order');
 
 router.post('/', async (req, res) => {
     try {
-        // 👇 ADD 'address' TO THIS LIST
-        const { customerName, email, phoneNumber, address, items, totalAmount } = req.body;
+        // 👇 Add 'combos' to the destructuring
+        const { customerName, email, phoneNumber, address, items, combos, totalAmount } = req.body;
 
         const newOrder = new Order({
             customerName,
             email,
             phoneNumber,
-            address, // <--- SAVE IT HERE
-            items,
+            address,
+            items: items || [],   // Default to empty array if no standard items
+            combos: combos || [], // Default to empty array if no combos
             totalAmount,
             status: "Pending"
         });
 
         const savedOrder = await newOrder.save();
 
-        // Notify Admin
         const io = req.app.get('socketio');
         io.emit('new-order', savedOrder); 
 

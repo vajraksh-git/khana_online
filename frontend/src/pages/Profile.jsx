@@ -1,130 +1,156 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronLeft, User, MapPin, Phone, Mail, Save, LogOut } from 'lucide-react';
+import { getAuth, signOut } from "firebase/auth";
 import axios from 'axios';
-import { signOut } from "firebase/auth";
-import { auth } from "../firebase"; // Ensure this path is correct based on your folder structure
 
 const API_URL = "http://localhost:5000";
 
-function Profile({ user }) {
-    // 1. Local State for the Form
-    const [phone, setPhone] = useState("");
-    const [address, setAddress] = useState("");
-    const [status, setStatus] = useState(""); 
+export default function Profile({ user }) {
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        displayName: user?.displayName || "",
+        email: user?.email || "",
+        phoneNumber: "",
+        address: ""
+    });
 
-    // 2. Load Data on Mount
+    // Fetch existing details from Backend
     useEffect(() => {
-        if (user.email) {
+        if(user?.email) {
             axios.get(`${API_URL}/api/users/${user.email}`)
                 .then(res => {
-                    // Pre-fill the form with DB data (if it exists)
-                    setPhone(res.data.phone || "");
-                    setAddress(res.data.address || "");
+                    if(res.data) {
+                        setFormData(prev => ({
+                            ...prev,
+                            phoneNumber: res.data.phoneNumber || "",
+                            address: res.data.address || ""
+                        }));
+                    }
                 })
-                .catch(err => console.error("Failed to load profile", err));
+                .catch(err => console.log("Profile fetch error", err));
         }
     }, [user]);
 
-    // 3. Save Data
-    const handleSave = async (e) => {
-        e.preventDefault();
-        setStatus("Saving...");
-
-        try {
-            const res = await axios.put(`${API_URL}/api/users/profile`, {
-                email: user.email, 
-                phone: phone,
-                address: address
-            });
-            
-            if (res.data) {
-                setStatus("✅ Profile Updated Successfully!");
-                setPhone(res.data.phone);
-                setAddress(res.data.address);
-            }
-        } catch (err) {
-            console.error(err);
-            setStatus("❌ Update Failed. Check Backend Console.");
-        }
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // 4. Logout Function
-    const handleLogout = () => {
-        if(confirm("Are you sure you want to logout?")) {
-            signOut(auth).catch((error) => {
-                console.error("Logout Error:", error);
+    const handleSave = async () => {
+        setLoading(true);
+        try {
+            await axios.post(`${API_URL}/api/users/update`, {
+                email: user.email,
+                displayName: formData.displayName,
+                phoneNumber: formData.phoneNumber,
+                address: formData.address
             });
+            alert("Profile Updated! ✅");
+        } catch (error) {
+            console.error(error);
+            alert("Failed to update profile.");
         }
+        setLoading(false);
+    };
+
+    const handleLogout = () => {
+        const auth = getAuth();
+        signOut(auth).then(() => navigate('/'));
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 p-6 flex flex-col items-center justify-center">
-            
-            {/* Profile Card */}
-            <div className="bg-white w-full max-w-md rounded-3xl p-8 shadow-xl">
+        <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+            {/* HEADER */}
+            <div className="bg-white sticky top-0 z-10 border-b border-gray-100 px-6 py-4 flex items-center justify-between shadow-sm">
+                <button 
+                    onClick={() => navigate('/')} 
+                    className="flex items-center gap-2 text-slate-500 font-bold hover:text-emerald-600 transition-colors"
+                >
+                    <ChevronLeft size={20} /> Back to Menu
+                </button>
+                <h1 className="font-bold text-lg">My Profile</h1>
+                <button onClick={handleLogout} className="text-red-500 font-bold text-sm hover:bg-red-50 px-3 py-1 rounded-full transition-colors">
+                    Logout
+                </button>
+            </div>
+
+            {/* MAIN CONTENT */}
+            <div className="max-w-xl mx-auto p-6">
                 
-                {/* Avatar Section */}
-                <div className="flex flex-col items-center mb-8">
-                    <img 
-                        src={user.photoURL} 
-                        alt="Profile" 
-                        className="w-24 h-24 rounded-full border-4 border-emerald-100 shadow-sm mb-4"
-                    />
-                    <h2 className="text-2xl font-bold text-gray-800">{user.displayName}</h2>
-                    <p className="text-gray-400 text-sm">{user.email}</p>
-                </div>
-
-                {/* Form */}
-                <form onSubmit={handleSave} className="space-y-4">
+                {/* Profile Card */}
+                <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+                    <div className="bg-emerald-600 h-32 relative">
+                        <div className="absolute -bottom-10 left-1/2 -translate-x-1/2">
+                            <img 
+                                src={user?.photoURL || "https://placehold.co/150"} 
+                                className="w-24 h-24 rounded-full border-4 border-white shadow-md bg-white"
+                                alt="Profile"
+                            />
+                        </div>
+                    </div>
                     
-                    <div>
-                        <label className="block text-xs font-bold text-gray-400 ml-1 uppercase mb-1">Phone Number</label>
-                        <input 
-                            type="tel" 
-                            className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-emerald-500 font-bold text-gray-700 outline-none transition-all"
-                            placeholder="e.g. 9876543210"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                        />
+                    <div className="pt-12 pb-8 px-8 text-center">
+                        <h2 className="text-2xl font-bold text-slate-800">{user?.displayName}</h2>
+                        <p className="text-slate-400 text-sm">{user?.email}</p>
                     </div>
 
-                    <div>
-                        <label className="block text-xs font-bold text-gray-400 ml-1 uppercase mb-1">Delivery Address</label>
-                        <textarea 
-                            rows="3"
-                            className="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-emerald-500 font-bold text-gray-700 outline-none transition-all resize-none"
-                            placeholder="Room No, Hostel/Block..."
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                        />
+                    <div className="px-8 pb-8 space-y-6">
+                        {/* Name Field */}
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                                <User size={14}/> Full Name
+                            </label>
+                            <input 
+                                type="text" 
+                                name="displayName"
+                                value={formData.displayName}
+                                onChange={handleChange}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-medium focus:ring-2 focus:ring-emerald-500 outline-none"
+                            />
+                        </div>
+
+                        {/* Phone Field */}
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                                <Phone size={14}/> Phone Number
+                            </label>
+                            <input 
+                                type="text" 
+                                name="phoneNumber"
+                                placeholder="+91 98765 43210"
+                                value={formData.phoneNumber}
+                                onChange={handleChange}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-medium focus:ring-2 focus:ring-emerald-500 outline-none"
+                            />
+                        </div>
+
+                        {/* Address Field */}
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                                <MapPin size={14}/> Delivery Address
+                            </label>
+                            <textarea 
+                                name="address"
+                                placeholder="Room No, Hostel, IIT Kharagpur..."
+                                value={formData.address}
+                                onChange={handleChange}
+                                rows="3"
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-medium focus:ring-2 focus:ring-emerald-500 outline-none resize-none"
+                            />
+                        </div>
+
+                        {/* Save Button */}
+                        <button 
+                            onClick={handleSave} 
+                            disabled={loading}
+                            className="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-emerald-200 hover:bg-emerald-700 active:scale-95 transition-all flex items-center justify-center gap-2"
+                        >
+                            {loading ? "Saving..." : <><Save size={20}/> Save Changes</>}
+                        </button>
                     </div>
-
-                    <button 
-                        type="submit" 
-                        className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-200 transition-all active:scale-95 mt-4"
-                    >
-                        Save Profile
-                    </button>
-
-                    {status && (
-                        <p className={`text-center text-sm font-bold mt-2 ${status.includes("Failed") ? "text-red-500" : "text-emerald-600"}`}>
-                            {status}
-                        </p>
-                    )}
-                </form>
-
-                {/* LOGOUT BUTTON (Restored) */}
-                <div className="mt-8 border-t border-gray-100 pt-6">
-                    <button 
-                        onClick={handleLogout}
-                        className="w-full bg-white border-2 border-red-100 text-red-500 hover:bg-red-50 font-bold py-3 rounded-xl transition-all"
-                    >
-                        Logout
-                    </button>
                 </div>
-
             </div>
         </div>
     );
 }
-
-export default Profile;

@@ -3,13 +3,23 @@ const mongoose = require('mongoose');
 const OrderSchema = new mongoose.Schema({
     customerName: String,
     email: String,
-    phoneNumber: { type: String, required: true },
-    address: { type: String, required: true }, // <--- ADD THIS
+    phoneNumber: String,
+    address: String,
+    // Keep existing items (for standard orders)
     items: [
         {
             menuItem: { type: mongoose.Schema.Types.ObjectId, ref: 'MenuItem' },
             name: String,
             quantity: Number,
+            price: Number
+        }
+    ],
+    // 👇 NEW: Add this to store the Custom Platters
+    combos: [
+        {
+            name: String,   // e.g., "3-Course Platter"
+            cuisine: String, // e.g., "North Indian"
+            details: Object, // e.g., { main: "Butter Chicken", side: "Dal", staple: "Naan" }
             price: Number
         }
     ],
